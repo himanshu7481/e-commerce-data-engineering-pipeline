@@ -1,4 +1,3 @@
-
 from airflow.sdk import dag, task
 from datetime import datetime
 from pathlib import Path
