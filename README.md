@@ -4,25 +4,37 @@ An end-to-end data engineering project using PySpark, Apache Airflow, and AWS S3
 
 ## Architecture & Data Flow
 
-Raw CSV Files (AWS S3)
-        |
-        v
-PySpark: Cleaning & Validation
-        |
-        +----> Invalid Records (Quarantine)
-        |
-        v
-Processed Data (Parquet)
-        |
-        v
-PySpark: Deduplication, Joins & Aggregations
-        |
-        v
-Curated Analytics Data (AWS S3)
+## Architecture & Data Flow
 
-Apache Airflow → Orchestrates the pipeline
+```mermaid
+flowchart TD
+    A["RAW BUCKET<br/>Customer, Product & Order CSVs"]
+    B["Apache Airflow<br/>Orchestration"]
+    C["raw_to_processed.py<br/>Cleaning & Validation"]
+    D[("PROCESSED BUCKET<br/>Valid Parquet Data")]
+    E[("QUARANTINE<br/>Invalid Records")]
+    F["processed_to_curated.py"]
+    G["Deduplication"]
+    H["Referential Integrity Checks"]
+    I["Valid Orders"]
+    J[("QUARANTINE<br/>Orphan Orders")]
+    K["Joins & Business Transformations"]
+    L[("CURATED BUCKET<br/>Partitioned Parquet")]
 
-
+    A --> C
+    B -. "Orchestrates" .-> C
+    B -. "Runs after successful processing" .-> F
+    C --> D
+    C --> E
+    D --> F
+    F --> G
+    G --> H
+    H --> I
+    H --> J
+    I --> K
+    K --> L
+</mermaid>
+```
 ## Pipeline Stages
 
 **1. Raw to Processed**
